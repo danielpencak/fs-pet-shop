@@ -1,5 +1,6 @@
-/* eslint-disable no-console */
 #!/usr/bin/env node
+
+/* eslint-disable no-console */
 'use strict';
 
 const fs = require('fs');
@@ -11,50 +12,44 @@ const file = path.basename(process.argv[1]);
 const cmd = process.argv[2];
 
 if (cmd === 'read') {
-  const index = parseInt(process.argv[3]);
-
-  if (index >= 0) {
-    fs.readFile(petsPath, 'utf8', (err, data) => {
-      if (err) {
-        throw err;
-      }
-      const pets = JSON.parse(data);
-
-      if (!pets[index]) {
-        console.error(`Usage: ${node} ${file} ${cmd} INDEX`);
-        process.exit(1);
-      }
-
-      console.log(pets[index]);
-    });
-  }
-  else {
-    fs.readFile(petsPath, 'utf8', (err, data) => {
-      if (err) {
-        throw err;
-      }
-      const pets = JSON.parse(data);
-
-      console.log(pets);
-    });
-  }
-}
-else if (cmd === 'create') {
-  const age = parseInt(process.argv[3]);
-  const kind = process.argv[4];
-  const name = process.argv[5];
-
   fs.readFile(petsPath, 'utf8', (err, data) => {
     if (err) {
       throw err;
     }
 
+    const index = Number.parseInt(process.argv[3]);
     const pets = JSON.parse(data);
 
-    if (!age || !kind || !name) {
+    if (Number.isNaN(index) || index < 0 || index >= pets.length) {
+      console.log(pets);
+      process.exit();
+    }
+
+    if (!pets[index]) {
+      console.error(`Usage: ${node} ${file} ${cmd} INDEX`);
+      process.exit(1);
+    }
+
+    console.log(pets[index]);
+  });
+}
+else if (cmd === 'create') {
+  // eslint-disable-next-line max-statements
+  fs.readFile(petsPath, 'utf8', (err, data) => {
+    if (err) {
+      throw err;
+    }
+
+    const age = Number.parseInt(process.argv[3]);
+    const kind = process.argv[4];
+    const name = process.argv[5];
+    const pets = JSON.parse(data);
+
+    if (Number.isNaN(age) || !kind || !name) {
       console.error(`Usage: ${node} ${file} ${cmd} AGE KIND NAME`);
       process.exit(1);
     }
+
     const pet = {};
 
     pet.age = age;
@@ -75,11 +70,13 @@ else if (cmd === 'create') {
   });
 }
 else if (cmd === 'update') {
+  // eslint-disable-next-line max-statements
   const index = process.argv[3];
-  const age = parseInt(process.argv[4]);
+  const age = Number.parseInt(process.argv[4]);
   const kind = process.argv[5];
   const name = process.argv[6];
 
+  // eslint-disable-next-line max-statements
   fs.readFile(petsPath, 'utf8', (err, data) => {
     if (err) {
       throw err;
@@ -87,7 +84,12 @@ else if (cmd === 'update') {
 
     const pets = JSON.parse(data);
 
-    if (!index || !age || !kind || !name) {
+    if (Number.isNaN(index) || index < 0 || index >= pets.length) {
+      console.log(pets);
+      process.exit();
+    }
+
+    if (Number.isNaN(age) || !kind || !name) {
       console.error(`Usage: ${node} ${file} ${cmd} INDEX AGE KIND NAME`);
       process.exit(1);
     }
@@ -121,12 +123,12 @@ else if (cmd === 'destroy') {
 
     const pets = JSON.parse(data);
 
-    if (!index) {
+    if (Number.isNaN(index) || index < 0 || index >= pets.length) {
       console.error(`Usage: ${node} ${file} ${cmd} INDEX`);
       process.exit(1);
     }
 
-    pets.splice(index, 1);
+    const pet = pets.splice(index, 1)[0];
 
     const petsJSON = JSON.stringify(pets);
 
@@ -135,7 +137,7 @@ else if (cmd === 'destroy') {
         throw writeErr;
       }
 
-      console.log(pets[index]);
+      console.log(pet);
     });
   });
 }
