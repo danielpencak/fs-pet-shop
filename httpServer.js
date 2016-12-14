@@ -41,9 +41,11 @@ const server = http.createServer((req, res) => {
 
         return;
       }
+
+      const pets = JSON.parse(petsJSON);
+
       const matchpetRegExp = (req.url).match(petRegExp);
       const index = Number.parseInt(matchpetRegExp[1]);
-      const pets = JSON.parse(petsJSON);
 
       if (Number.isNaN(index) || index < 0 || index >= pets.length) {
         res.statusCode = 404;
@@ -52,6 +54,7 @@ const server = http.createServer((req, res) => {
 
         return;
       }
+
       const petJSON = JSON.stringify(pets[index]);
 
       res.statusCode = 200;
@@ -80,6 +83,7 @@ const server = http.createServer((req, res) => {
   //     res.end(petJSON);
   //   });
   // }
+
   // else if (req.method === 'GET' && req.url === '/pets/1') {
   //   fs.readFile(petsPath, 'utf8', (err, petsJSON) => {
   //     if (err) {
@@ -100,6 +104,7 @@ const server = http.createServer((req, res) => {
   //     res.end(petJSON);
   //   });
   // }
+
   else {
     res.statusCode = 404;
     res.setHeader('Content-Type', 'text/plain');
