@@ -35,6 +35,24 @@ app.get('/pets', (_req, res, next) => {
   });
 });
 
+// Read one
+app.get('/pets/:index', (req, res, next) => {
+  fs.readFile(petsPath, 'utf8', (err, petsJSON) => {
+    if (err) {
+      return next(err);
+    }
+
+    const pets = JSON.parse(petsJSON);
+    const index = Number.parseInt(req.params.index);
+
+    if (index < 0 || index >= pets.length || Number.isNaN(index)) {
+      return next();
+    }
+
+    res.send(pets[index]);
+  });
+});
+
 app.use((_req, res, _next) => {
   return res.sendStatus(404);
 });
