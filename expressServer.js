@@ -33,6 +33,41 @@ app.get('/pets', (req, res) => {
   });
 });
 
+app.post('/pets', (req, res) => {
+  fs.readFile(petsPath, 'utf8', (readErr, petsJSON) => {
+    if (readErr) {
+      console.error(readErr.stack);
+
+      return res.sendStatus(500);
+    }
+
+    const pets = JSON.parse(petsJSON);
+    const name = req.body.name;
+    const kind = req.body.kind;
+    const age = Number.parseInt(req.body.age);
+
+    if (!name || !kind || Number.isNaN(age)) {
+      return res.sendStatus(400);
+    }
+
+    const pet = { name, age, kind };
+
+    pets.push(pet);
+
+    const newPetsJSON = JSON.stringify(pets);
+
+    fs.writeFile(petsPath, newPetsJSON, (writeErr) => {
+      if (writeErr) {
+        console.error(writeErr.stack);
+
+        return res.sendStatus(500);
+      }
+
+      res.send(pet);
+    });
+  });
+});
+
 app.get('/pets/:index', (req, res) => {
   fs.readFile(petsPath, 'utf8', (err, petsJSON) => {
     if (err) {
