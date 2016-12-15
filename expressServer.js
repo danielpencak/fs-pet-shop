@@ -29,6 +29,26 @@ app.get('/pets', (req, res) => {
   });
 });
 
+app.get('/pets/:index', (req, res) => {
+  fs.readFile(petsPath, 'utf8', (err, petsJSON) => {
+    if (err) {
+      console.error(err.stack);
+
+      return res.sendStatus(500);
+    }
+
+    const index = Number.parseInt(req.params.index);
+    const pets = JSON.parse(petsJSON);
+
+    if (index < 0 || index >= pets.length || Number.isNaN(index)) {
+      return res.sendStatus(404);
+    }
+
+    res.set('Content-Type', 'text/plain');
+    res.send(pets[index]);
+  });
+});
+
 app.use((req, res) => {
   res.sendStatus(404);
 });
