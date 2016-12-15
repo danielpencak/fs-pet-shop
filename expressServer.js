@@ -22,13 +22,10 @@ const bodyParser = require('body-parser');
 
 app.use(bodyParser.json());
 
-app.get('/pets', (req, res, next) => {
+// Read all
+app.get('/pets', (_req, res, next) => {
   fs.readFile(petsPath, 'utf8', (err, petsJSON) => {
     if (err) {
-      // console.error(err.stack);
-
-      // return res.sendStatus(500);
-
       return next(err);
     }
 
@@ -38,13 +35,28 @@ app.get('/pets', (req, res, next) => {
   });
 });
 
+// Read one
+app.get('/pets/:index', (req, res, next) => {
+  fs.readFile(petsPath, 'utf8', (err, petsJSON) => {
+    if (err) {
+      return next(err);
+    }
+
+    const index = Number.parseInt(req.params.index);
+    const pets = JSON.parse(petsJSON);
+
+    if (index < 0 || index >= pets.length || Number.isNaN(index)) {
+      return next();
+    }
+
+    res.send(pets[index]);
+  });
+});
+
+// Create
 app.post('/pets', (req, res, next) => {
   fs.readFile(petsPath, 'utf8', (readErr, petsJSON) => {
     if (readErr) {
-      // console.error(readErr.stack);
-
-      // return res.sendStatus(500);
-
       return next(readErr);
     }
 
@@ -54,9 +66,7 @@ app.post('/pets', (req, res, next) => {
     const age = Number.parseInt(req.body.age);
 
     if (!name || !kind || Number.isNaN(age)) {
-      // return res.sendStatus(400);
-
-      return next();
+      return res.sendStatus(400);
     }
 
     const pet = { name, age, kind };
@@ -67,10 +77,6 @@ app.post('/pets', (req, res, next) => {
 
     fs.writeFile(petsPath, newPetsJSON, (writeErr) => {
       if (writeErr) {
-        // console.error(writeErr.stack);
-
-        // return res.sendStatus(500);
-
         return next(writeErr);
       }
 
@@ -79,40 +85,14 @@ app.post('/pets', (req, res, next) => {
   });
 });
 
-app.get('/pets/:index', (req, res, next) => {
-  fs.readFile(petsPath, 'utf8', (err, petsJSON) => {
-    if (err) {
-      // console.error(err.stack);
-
-      // return res.sendStatus(500);
-
-      return next(err);
-    }
-
-    const index = Number.parseInt(req.params.index);
-    const pets = JSON.parse(petsJSON);
-
-    if (index < 0 || index >= pets.length || Number.isNaN(index)) {
-      // return res.sendStatus(404);
-      return next();
-    }
-
-    res.send(pets[index]);
-  });
-});
-
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-
-  return res.sendStatus(500);
-});
-
-app.get('*', (req, res, next) => {
+app.use((_req, res, _next) => {
   res.sendStatus(404);
 });
 
-app.post('*', (req, res, next) => {
-  res.sendStatus(400);
+app.use((err, _req, res, _next) => {
+  console.error(err.stack);
+
+  return res.sendStatus(500);
 });
 
 const port = process.env.PORT || 8000;
