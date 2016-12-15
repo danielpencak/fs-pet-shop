@@ -15,6 +15,10 @@ const morgan = require('morgan');
 
 app.use(morgan('dev'));
 
+const bodyParser = require('body-parser');
+
+app.use(bodyParser.json());
+
 app.get('/pets', (req, res) => {
   fs.readFile(petsPath, 'utf8', (err, petsJSON) => {
     if (err) {
@@ -25,7 +29,7 @@ app.get('/pets', (req, res) => {
 
     const pets = JSON.parse(petsJSON);
 
-    res.send(petsJSON);
+    res.send(pets);
   });
 });
 
@@ -44,7 +48,6 @@ app.get('/pets/:index', (req, res) => {
       return res.sendStatus(404);
     }
 
-    res.set('Content-Type', 'text/plain');
     res.send(pets[index]);
   });
 });
@@ -58,3 +61,5 @@ const port = process.env.PORT || 8000;
 app.listen(port, () => {
   console.log(`Listening on port ${port}`);
 });
+
+module.exports = app;
