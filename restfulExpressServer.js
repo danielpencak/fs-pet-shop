@@ -53,6 +53,37 @@ app.get('/pets/:index', (req, res, next) => {
   });
 });
 
+// Create
+app.post('/pets', (req, res, next) => {
+  fs.readFile(petsPath, 'utf8', (readErr, petsJSON) => {
+    if (readErr) {
+      return next(readErr);
+    }
+
+    const pets = JSON.parse(petsJSON);
+    const { kind, name } = req.body;
+    const age = Number.parseInt(req.body.age);
+
+    if (!name || !kind || Number.isNaN(age)) {
+      return res.sendStatus(400);
+    }
+
+    const pet = { name, age, kind };
+
+    pets.push(pet);
+
+    const newPetsJSON = JSON.stringify(pets);
+
+    fs.writeFile(petsPath, newPetsJSON, (writeErr) => {
+      if (writeErr) {
+        return next(writeErr);
+      }
+
+      res.send(pet);
+    });
+  });
+});
+
 app.use((_req, res, _next) => {
   return res.sendStatus(404);
 });
