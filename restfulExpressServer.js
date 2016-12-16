@@ -148,7 +148,6 @@ app.delete('/pets/:index', (req, res, next) => {
     }
 
     const pet = pets.splice(index, 1)[0];
-
     const newPetsJSON = JSON.stringify(pets);
 
     fs.writeFile(petsPath, newPetsJSON, (writeErr) => {
